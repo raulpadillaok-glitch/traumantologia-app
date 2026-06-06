@@ -1,0 +1,206 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- PAQUETES ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{caption}
+
+% Configuración de márgenes UNIFRANZ
+\geometry{a4paper, margin=2.5cm}
+\onehalfspacing
+
+% Configuración de colores corporativos e hipervínculos
+\definecolor{unifranzblue}{RGB}{0, 51, 102}
+\definecolor{unifranzorange}{RGB}{255, 102, 0}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=unifranzblue,
+    filecolor=magenta,      
+    urlcolor=unifranzblue,
+    pdftitle={Documento de Proyecto - PhysioVision},
+}
+
+% Configuración de colores para bloques de código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    tabsize=2
+}
+
+% Formato de Títulos
+\titleformat{\section}{\Large\bfseries\color{unifranzblue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{black}}{\thesubsection}{1em}{}
+
+\begin{document}
+
+% --- PORTADA ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\bfseries\LARGE UNIVERSIDAD PRIVADA FRANZ TAMAYO \par}
+    \vspace{0.5cm}
+    {\large Facultad de Ingeniería y Ciencias Aplicadas \par}
+    \vspace{0.5cm}
+    {\itshape\Large Carrera de Ingeniería de Sistemas \par}
+    \vspace{2cm}
+    
+    % Título del Proyecto
+    {\huge\bfseries\color{unifranzblue} PhysioVision \par}
+    \vspace{0.5cm}
+    {\Large Sistema Móvil de Monitoreo Inteligente para la Rehabilitación de Esguinces mediante Visión Artificial, Flutter y Análisis Biomecánico \par}
+    
+    \vspace{2.5cm}
+    {\Large\textbf{Desarrollado por:}} \\
+    \vspace{0.5cm}
+    {\large 
+    Cristhofer Edson Castillo Illanes \\ 
+    Jhordan Leonidas Illanes Suxo \\ 
+    Wiliam Jared Ramos Vera \\ 
+    Aron Alexis Boyan Cruz \par}
+    
+    \vspace{1.5cm}
+    {\large\textbf{Materia:}} \\
+    {\large Dispositivos Móviles \par}
+    
+    \vfill
+    {\Large La Paz - Bolivia \\ \textbf{2026} \par}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. INTRODUCCIÓN ---
+\section{Introducción}
+El esguince de tobillo constituye la lesión musculoesquelética aguda más frecuente en la práctica médica y deportiva a nivel global. En la región de La Paz, caracterizada por su topografía irregular, la incidencia de este traumatismo en la población civil es alarmantemente alta. A pesar de su cotidianidad, un porcentaje significativo de pacientes (aproximadamente un 30\% a 40\%) desarrolla \textbf{Inestabilidad Crónica de Tobillo (ICT)} debido a procesos de rehabilitación incompletos, mal ejecutados o abandonados prematuramente.
+
+Tradicionalmente, la fisioterapia requiere la presencia física del especialista para medir el rango de movimiento (ROM) con un goniómetro manual y corregir la postura del paciente. Sin embargo, las barreras socioeconómicas y geográficas limitan el número de sesiones a las que un paciente promedio puede acceder. 
+
+Ante este paradigma, el proyecto \textbf{PhysioVision} irrumpe como una solución disruptiva en el campo de la salud digital (e-Health). Utilizando \textbf{Inteligencia Artificial y Visión por Computadora en tiempo real}, el sistema es capaz de digitalizar la labor de monitoreo del fisioterapeuta. La aplicación se despliega en los propios teléfonos móviles de los pacientes, transformando su cámara en un instrumento de biometría clínica de alta precisión, garantizando así la adherencia al tratamiento desde el hogar.
+
+% --- 2. PLANTEAMIENTO DEL PROBLEMA ---
+\section{Planteamiento del Problema}
+La desconexión terapéutica entre las sesiones presenciales y los ejercicios domiciliarios es el vector principal de las recaídas musculares. Cuando el paciente es instruido a realizar ejercicios en su domicilio, carece de retroalimentación en tiempo real. 
+\begin{itemize}
+    \item ¿Cómo puede el paciente saber si está alcanzando el grado de flexión adecuado?
+    \item ¿Cómo puede evitar movimientos compensatorios que dañen otros ligamentos?
+    \item ¿De qué manera el paciente puede cuantificar su mejora para no perder la motivación?
+\end{itemize}
+
+\textbf{Problema Central:} La carencia de sistemas tecnológicos de bajo costo y fácil acceso que permitan el monitoreo biométrico, la cuantificación de progreso y la corrección postural autónoma durante la rehabilitación domiciliaria de pacientes con esguinces de tobillo.
+
+% --- 3. OBJETIVOS ---
+\section{Objetivos del Proyecto}
+\subsection{Objetivo General}
+Desarrollar un sistema de software móvil inteligente bajo arquitectura nativa que automatice el monitoreo y registro de la rehabilitación de esguinces de tobillo, empleando modelos de Inteligencia Artificial (Google ML Kit) para el análisis cinemático del paciente en tiempo real.
+
+\subsection{Objetivos Específicos}
+\begin{enumerate}
+    \item \textbf{Implementación Geométrica y de Visión:} Integrar la red neuronal convolucional de \textit{Pose Detection} para extraer coordenadas bidimensionales de los \textit{landmarks} anatómicos del usuario sin conexión a internet.
+    \item \textbf{Persistencia y Analítica de Datos:} Diseñar un motor de almacenamiento local (NoSQL) capaz de registrar historiales clínicos de sesiones e ilustrar el progreso de flexibilidad mediante gráficos estadísticos dinámicos.
+    \item \textbf{Diseño Centrado en el Usuario (UI/UX):} Construir una interfaz móvil inclusiva, aplicando el estándar \textit{Glassmorphism} e interactividad multimedia, asegurando una curva de aprendizaje mínima para pacientes de cualquier rango de edad.
+\end{enumerate}
+
+% --- 4. JUSTIFICACIONES ---
+\section{Justificación del Proyecto}
+
+\subsection{Justificación Tecnológica}
+La ingeniería detrás de PhysioVision maximiza el rendimiento bajo el concepto de \textbf{Edge AI} (Inteligencia Artificial en el Borde). Tradicionalmente, el análisis de video pesado requería enviar imágenes a un servidor (\textit{Cloud Computing}), lo que generaba latencia y consumía datos móviles. Nuestro proyecto elimina esta dependencia al procesar los tensores matriciales directamente en el procesador (CPU/NPU) del celular utilizando modelos de \textit{Machine Learning Quantizados} (reducidos en peso algorítmico). Esto permite que la aplicación fluya a altos FPS y responda de forma instantánea.
+
+\subsection{Justificación Social y Económica}
+El software se presenta como un agente democratizador de la salud. En Bolivia, el costo de una rehabilitación fisioterapéutica completa suele exceder la capacidad económica de las familias vulnerables. PhysioVision actúa como un asistente terapéutico \textbf{gratuito}, de uso ilimitado y disponible 24/7. Además, al haber sido programado con herramientas de código abierto (Flutter, Dart, Hive), los costos de desarrollo e infraestructura para el despliegue del sistema se reducen a cero, permitiendo su viabilidad comercial y social inmediata.
+
+\subsection{Justificación Académica}
+El presente proyecto encapsula los conocimientos troncales de la carrera de Ingeniería de Sistemas de la Universidad Privada Franz Tamayo. Pone en manifiesto competencias en programación orientada a objetos (Dart), arquitectura de componentes visuales (Flutter), gestión de bases de datos embebidas e integración de APIs de Inteligencia Artificial complejas, superando los requerimientos de la cátedra de Dispositivos Móviles.
+
+% --- 5. MARCO TEÓRICO ---
+\section{Marco Teórico y Biomecánico}
+\subsection{Anatomía del Esguince de Tobillo}
+Un esguince ocurre cuando los ligamentos (tejido conectivo fuerte) que sostienen el tobillo se estiran más allá de sus límites y se desgarran. Los grados se clasifican en:
+\begin{itemize}
+    \item \textbf{Grado I (Leve):} Estiramiento leve y desgarro microscópico de las fibras.
+    \item \textbf{Grado II (Moderado):} Desgarro parcial del ligamento, inestabilidad leve.
+    \item \textbf{Grado III (Grave):} Desgarro completo, pérdida de función.
+\end{itemize}
+El tratamiento clínico fundamental requiere recuperar la \textit{Dorsiflexión} (llevar el pie hacia la espinilla) y la \textit{Flexión Plantar} (apuntar el pie hacia abajo).
+
+\subsection{Machine Learning y Computer Vision}
+La visión artificial es la disciplina que instruye a las computadoras para que interpreten y comprendan el mundo visual. \textbf{Pose Detection (Detección de Postura)} es una subrama que utiliza redes neuronales pre-entrenadas para identificar la topología del cuerpo humano, prediciendo la ubicación exacta de las articulaciones en milisegundos.
+
+% --- 6. METODOLOGÍA Y TECNOLOGÍAS ---
+\section{Metodología y Arquitectura del Sistema}
+Se utilizó el framework \textbf{Flutter} (creado por Google), el cual permite compilar el código de manera nativa directamente a instrucciones de máquina (ARM), logrando un rendimiento idéntico a las aplicaciones hechas nativamente en Java o Swift.
+
+\subsection{Stack Tecnológico Implementado}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+    \hline
+    \textbf{Tecnología} & \textbf{Función Crítica en el Sistema} \\ \hline
+    \textbf{Flutter \& Dart} & Renderizado de Interfaz y Lógica principal. \\ \hline
+    \textbf{Google ML Kit} & Motor de Inferencia On-Device para Pose Detection. \\ \hline
+    \textbf{Hive (NoSQL)} & Base de datos de alta velocidad en formato clave-valor. \\ \hline
+    \textbf{FL Chart} & Motor de renderizado vectorial de gráficos estadísticos. \\ \hline
+    \textbf{Camera Plugin} & Interacción de bajo nivel con el sensor óptico del dispositivo. \\ \hline
+    \end{tabular}
+    \caption{Stack Tecnológico de PhysioVision}
+\end{table}
+
+\subsection{Estructura Base de Datos (Edge Storage)}
+Para manejar los datos localmente, se configuró \textit{Hive}, que guarda la información cifrada y estructurada de la siguiente manera:
+\begin{itemize}
+    \item \textbf{Box de Ejercicios:} Contiene el ID, Título, Descripción clínica y enlaces a los videos multimedia para cada una de las fases de recuperación.
+    \item \textbf{Box de Sesiones:} Registra un historial inmutable de las fechas y el "Ángulo Máximo de Flexión" logrado por el paciente en cada iteración.
+\end{itemize}
+
+% --- 7. ANÁLISIS ALGORÍTMICO ---
+\section{Análisis Algorítmico y Cinemático}
+El funcionamiento de la Inteligencia Artificial radica en la transformación de píxeles a vectores matemáticos. Al iniciarse la cámara, el algoritmo realiza los siguientes procesos por cada \textit{frame} (30 veces por segundo):
+
+\begin{enumerate}
+    \item \textbf{Inferencia Tensorial:} El \texttt{PoseDetector} procesa la matriz \texttt{InputImage} y devuelve una lista de los 33 \textit{Landmarks} humanos en el plano cartesiano $X, Y$.
+    \item \textbf{Extracción del Segmento Inferior:} El software discrimina todo el cuerpo excepto \texttt{PoseLandmarkType.leftAnkle} y \texttt{rightAnkle}.
+    \item \textbf{Filtrado de Confianza:} Solo se toman en consideración los puntos cuyo atributo \texttt{Likelihood} sea mayor a $0.80$ (80\% de seguridad de que la máquina está viendo un tobillo real y no un falso positivo).
+    \item \textbf{Registro de Ángulos:} Una vez obtenidas las posiciones, se extrae el vector espacial y se guarda en la variable \texttt{maxAngle}. Al terminar el ejercicio, esta variable es inyectada en la base de datos para modificar el gráfico general.
+\end{enumerate}
+
+% --- 8. UI/UX: DISEÑO PREMIUM ---
+\section{Diseño de Interfaz (Glassmorphism)}
+El proyecto rompe con el diseño monótono tradicional de las aplicaciones médicas. Se desarrolló una Interfaz de Usuario (UI) fuertemente inspirada en la psicología del color para fomentar la tranquilidad y resiliencia del paciente.
+\begin{itemize}
+    \item \textbf{Fondo y Paleta:} Gradientes profundos (Deep Teal) con contrastes Verde Neón para representar "salud y éxito".
+    \item \textbf{Glassmorphism:} Los paneles de información (Tarjetas de progreso, catálogo de ejercicios) no son sólidos; están programados con el widget \texttt{BackdropFilter} que emula la refracción de la luz a través de un \textbf{cristal esmerilado}, permitiendo ver sutilmente los colores que hay debajo de ellos.
+    \item \textbf{Micro-Interacciones:} Se agregaron \textbf{Animaciones Hero} que expanden fluidamente las vistas de los ejercicios, evitando cortes bruscos en la experiencia de usuario.
+\end{itemize}
+
+% --- 9. CONCLUSIONES ---
+\section{Conclusiones y Trabajo Futuro}
+El desarrollo de \textbf{PhysioVision} demuestra categóricamente que la integración de la Inteligencia Artificial en dispositivos móviles estándar no solo es posible, sino que es altamente eficiente si se aplica una arquitectura óptima (Edge Computing). El software final ha cumplido con todas las expectativas funcionales y académicas, entregando un producto estable, persistente (con base de datos local) y visualmente vanguardista.
+
+Como proyecciones futuras para escalar el proyecto, se planea implementar un sistema de \textbf{Text-to-Speech (Voz a texto)} que le hable al paciente diciéndole frases como \textit{"Dobla un poco más"} o \textit{"Excelente rango de movimiento"}, así como la conexión a un servidor central en la nube (Cloud) para que los doctores ortopedistas puedan monitorear en tiempo real a sus pacientes a la distancia.
+
+\end{document}

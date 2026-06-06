@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    video {
+      display: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scaleX(-1);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <video class="input_video"></video>
+    <canvas class="output_canvas"></canvas>
+  </div>
+
+  <script type="module">
+    const videoElement = document.getElementsByClassName('input_video')[0];
+    const canvasElement = document.getElementsByClassName('output_canvas')[0];
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // ===== TIEMPO DE ACTUALIZACIÓN =====
+    // Modifica esta variable para cambiar el retraso en guardar el ángulo (en milisegundos)
+    // 500 = medio segundo.
+    const UPDATE_DELAY_MS = 250;
+    let lastUpdateTime = 0;
+
+    let cachedAngleR = 90;
+    let cachedAngleL = 90;
+    let cachedMaxMovement = 0;
+    let cachedStatusText = "";
+
+    function calculateAngle(a, b, c) {
+      let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+      let angle = Math.abs(radians * 180.0 / Math.PI);
+      if (angle > 180.0) angle = 360.0 - angle;
+      return angle;
+    }
+
+    function drawAngle(ctx, a, b, c, angle, color) {
+      let width = canvasElement.width;
+      let height = canvasElement.height;
+
+      let ax = a.x * width, ay = a.y * height;
+      let bx = b.x * width, by = b.y * height;
+      let cx = c.x * width, cy = c.y * height;
+
+      // Draw arc pie slice
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      let startAngle = Math.atan2(ay - by, ax - bx);
+      let endAngle = Math.atan2(cy - by, cx - bx);
+
+      let diff = endAngle - startAngle;
+      let counterclockwise = false;
+      while (diff <= -Math.PI) diff += 2 * Math.PI;
+      while (diff > Math.PI) diff -= 2 * Math.PI;
+      if (diff < 0) counterclockwise = true;
+
+      ctx.arc(bx, by, 50, startAngle, endAngle, counterclockwise);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255, 165, 0, 0.4)'; // Transparent orange
+      ctx.fill();
+
+      // Draw lines
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Draw joints
+      ctx.fillStyle = '#FFA500'; // Orange
+      [[ax, ay], [bx, by], [cx, cy]].forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], 8, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+      // Draw Text
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText(angle.toFixed(3) + '°', bx + 25, by - 25);
+    }
+
+    function onResults(results) {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      // Draw video frame
+      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+      let message = { type: 'POSE_UPDATE', angle: 0, status: 'Buscando tobillos...' };
+      let now = Date.now();
+      let shouldUpdate = (now - lastUpdateTime >= UPDATE_DELAY_MS);
+
+      if (results.poseLandmarks) {
+        // Dibujamos el esqueleto de fondo semi-transparente
+        drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: 'rgba(255, 255, 255, 0.2)', lineWidth: 2 });
+        drawLandmarks(canvasCtx, results.poseLandmarks, { color: 'rgba(255, 255, 255, 0.2)', lineWidth: 1 });
+
+        const rightKnee = results.poseLandmarks[26];
+        const rightAnkle = results.poseLandmarks[28];
+        const rightFootIndex = results.poseLandmarks[32];
+
+        const leftKnee = results.poseLandmarks[25];
+        const leftAnkle = results.poseLandmarks[27];
+        const leftFootIndex = results.poseLandmarks[31];
+
+        if (shouldUpdate) {
+          lastUpdateTime = now;
+          cachedMaxMovement = 0;
+          cachedStatusText = "";
+          if (rightKnee && rightAnkle && rightFootIndex && rightAnkle.visibility > 0.4) {
+            cachedAngleR = calculateAngle(rightKnee, rightAnkle, rightFootIndex);
+          }
+          if (leftKnee && leftAnkle && leftFootIndex && leftAnkle.visibility > 0.4) {
+            cachedAngleL = calculateAngle(leftKnee, leftAnkle, leftFootIndex);
+          }
+        }
+
+        let activeAnkles = 0;
+
+        if (rightKnee && rightAnkle && rightFootIndex && rightAnkle.visibility > 0.4) {
+          let movement = Math.abs(cachedAngleR - 90);
+          drawAngle(canvasCtx, rightKnee, rightAnkle, rightFootIndex, cachedAngleR, '#20B2AA');
+          cachedMaxMovement = Math.max(cachedMaxMovement, movement);
+          if (shouldUpdate) cachedStatusText += `Derecho: ${cachedAngleR.toFixed(3)}° `;
+          activeAnkles++;
+        }
+
+        if (leftKnee && leftAnkle && leftFootIndex && leftAnkle.visibility > 0.4) {
+          let movement = Math.abs(cachedAngleL - 90);
+          drawAngle(canvasCtx, leftKnee, leftAnkle, leftFootIndex, cachedAngleL, '#20B2AA');
+          cachedMaxMovement = Math.max(cachedMaxMovement, movement);
+          if (shouldUpdate) cachedStatusText += `Izquierdo: ${cachedAngleL.toFixed(3)}° `;
+          activeAnkles++;
+        }
+
+        if (activeAnkles > 0) {
+          message.status = `Detectando: ${cachedStatusText}`;
+          message.angle = cachedMaxMovement;
+        } else {
+          message.status = "Cuerpo detectado, pero no se ven los tobillos. ¡Aléjate más!";
+        }
+      } else {
+        message.status = "No se detecta ningún cuerpo. Párate frente a la cámara y asegura buena luz.";
+      }
+
+      // Enviar datos a Flutter solo cuando haya actualización
+      if (shouldUpdate || !results.poseLandmarks) {
+        window.parent.postMessage(JSON.stringify(message), "*");
+      }
+      canvasCtx.restore();
+    }
+
+    const pose = new Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      }
+    });
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+    pose.onResults(onResults);
+
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        if (canvasElement.width !== videoElement.videoWidth) {
+          canvasElement.width = videoElement.videoWidth;
+          canvasElement.height = videoElement.videoHeight;
+        }
+        await pose.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480
+    });
+
+    camera.start().then(() => {
+      console.log("Cámara lista. Buscando cuerpo...");
+    }).catch(err => {
+      console.log("Error accediendo a la cámara web: " + err.message);
+    });
+  </script>
+</body>
+
+</html>
